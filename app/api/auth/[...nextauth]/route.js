@@ -2,6 +2,7 @@ import { connectMongoDB } from "@/lib/mongodb";
 import User from "@/models/user";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 
 export const authOptions = {
@@ -33,6 +34,10 @@ export const authOptions = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
   ],
   session: {
     strategy: "jwt",
@@ -45,7 +50,7 @@ export const authOptions = {
     async redirect({ url, baseUrl }) {
       // Ensure users are redirected to the dashboard after login
       if (url.startsWith(baseUrl)) {
-        return baseUrl + "/dashboard";
+        return baseUrl + "/";
       }
       return url;
     },

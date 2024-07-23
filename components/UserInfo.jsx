@@ -3,6 +3,8 @@
 import { signOut } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { toast } from 'react-toastify'; // Import toast
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS for react-toastify
 
 export default function UserInfo() {
   const { data: session } = useSession();
@@ -10,6 +12,7 @@ export default function UserInfo() {
 
   const handleSignOut = async () => {
     await signOut({ redirect: false, callbackUrl: "/" });
+    toast.success("Logged out successfully!"); // Show toast notification
     router.push("/");
   };
 

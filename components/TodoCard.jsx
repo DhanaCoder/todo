@@ -1,8 +1,6 @@
-"use client";
-
+// TodoCard.jsx
 import React from "react";
 import { Draggable } from "react-beautiful-dnd";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Linkify from "react-linkify";
 import Link from "next/link";
@@ -17,8 +15,7 @@ const truncateText = (text, maxLength) => {
   return text;
 };
 
-const TodoCard = ({ todo, index }) => {
-  const { data: session } = useSession();
+const TodoCard = ({ todo, index, refreshTodos }) => {
   const router = useRouter();
 
   const createdDateTime = new Date(todo.createdAt).toLocaleString("en-US", {
@@ -48,7 +45,7 @@ const TodoCard = ({ todo, index }) => {
 
         if (response.ok) {
           toast.success('TODO deleted successfully!');
-          router.refresh(); // Refresh the page to reflect the changes
+          refreshTodos(); // Call the refresh function
         } else {
           toast.error('Error deleting TODO');
         }
@@ -66,7 +63,7 @@ const TodoCard = ({ todo, index }) => {
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className="max-w-md mx-auto bg-white rounded-lg shadow-md border border-gray-200 my-4 p-4"
+          className="max-w-md mx-auto bg-sky-300 rounded-lg shadow-md border border-gray-200 my-4 p-4"
         >
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
             {truncateText(todo.title, TRUNCATE_LENGTH)}
@@ -102,15 +99,15 @@ const TodoCard = ({ todo, index }) => {
           </p>
 
           <div className="flex items-center justify-between mt-4">
-            <Link href={`/todoEdit/${todo._id}`} className="text-blue-600 hover:underline">
+            <Link href={`/todoEdit/${todo._id}`} className="text-black hover:underline font-bold">
               Edit
             </Link>
-            <Link href={`/todoView/${todo._id}`} className="text-blue-600 hover:underline">
+            <Link href={`/todoView/${todo._id}`} className="text-black hover:underline font-bold">
               View
             </Link>
             <button
               onClick={handleDelete}
-              className="text-red-600 hover:underline"
+              className="text-red-600 hover:underline font-bold"
             >
               Delete
             </button>

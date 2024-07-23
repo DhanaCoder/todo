@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
@@ -13,11 +13,10 @@ export default function Dashboard() {
   const router = useRouter();
   const [todos, setTodos] = useState([]);
   const [filteredTodos, setFilteredTodos] = useState([]);
-  const [statusFilter, setStatusFilter] = useState("todo"); // Default to "todo"
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    if (status === "loading") return; // Do nothing while loading
+    if (status === "loading") return;
     if (status === "unauthenticated") router.push("/");
   }, [status]);
 
@@ -38,12 +37,8 @@ export default function Dashboard() {
   }, [session?.user?.email]);
 
   useEffect(() => {
-    // Filter todos based on status and search query
+    // Filter todos based on search query
     let filtered = todos;
-
-    if (statusFilter !== "all") {
-      filtered = filtered.filter((todo) => todo.status === statusFilter);
-    }
 
     if (searchQuery) {
       filtered = filtered.filter((todo) =>
@@ -52,31 +47,36 @@ export default function Dashboard() {
     }
 
     setFilteredTodos(filtered);
-  }, [todos, statusFilter, searchQuery]);
+  }, [todos, searchQuery]);
 
   const handleDragEnd = async (result) => {
     if (!result.destination) return;
 
     const { source, destination } = result;
-    const movedTodo = todos[source.index];
-    const updatedTodos = Array.from(todos);
+    const movedTodo = todos.find(todo => todo._id === result.draggableId);
+    const updatedStatus = destination.droppableId;
 
-    // Remove the dragged item from the source list
-    updatedTodos.splice(source.index, 1);
-    // Add the item back in the new position
-    updatedTodos.splice(destination.index, 0, movedTodo);
+    if (!movedTodo) {
+      console.error("Todo not found for the given draggableId.");
+      return;
+    }
 
-    // Update the state with new order
+    const updatedTodo = { ...movedTodo, status: updatedStatus };
+
+    // Update local state
+    const updatedTodos = todos.map(todo =>
+      todo._id === movedTodo._id ? updatedTodo : todo
+    );
     setTodos(updatedTodos);
 
-    // Update the status of the moved TODO
+    // Update backend
     try {
       const response = await fetch(`/api/todos/${movedTodo._id}`, {
-        method: 'PATCH',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: destination.droppableId }),
+        body: JSON.stringify({ status: updatedStatus }),
       });
 
       if (response.ok) {
@@ -90,62 +90,66 @@ export default function Dashboard() {
     }
   };
 
+  const refreshTodos = async () => {
+    if (session?.user?.email) {
+      try {
+        const response = await fetch(`/api/todos?email=${session.user.email}`);
+        const data = await response.json();
+        setTodos(data.todos);
+      } catch (error) {
+        console.error("Error fetching todos:", error);
+      }
+    }
+  };
+
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="loader relative w-12 h-12">
+          <div className="absolute w-3 h-3 bg-gray-800 rounded-full top-0 left-0"></div>
+          <div className="absolute w-3 h-3 bg-gray-800 rounded-full top-0 right-0"></div>
+          <div className="absolute w-3 h-3 bg-gray-800 rounded-full bottom-0 left-0"></div>
+          <div className="absolute w-3 h-3 bg-gray-800 rounded-full bottom-0 right-0"></div>
+        </div>
+      </div>
+    );
   }
 
   const statusCategories = ["todo", "in progress", "done"];
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="p-6">
+      <div className="p-4 md:p-6 lg:p-8">
         <UserInfo />
-        <h2 className="text-2xl font-bold mb-4">Your TODOs</h2>
+        <h2 className="text-xl md:text-2xl font-bold mb-4">Your TODOs</h2>
 
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
+        <div className="mb-4">
           {/* Search */}
           <input
             type="text"
             placeholder="Search by title..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full md:w-1/4 p-2 border border-gray-300 rounded-lg mb-4 md:mb-0"
+            className="w-1/4 p-2 border border-gray-300 rounded-lg"
           />
-
-          {/* Status Filters */}
-          <div className="flex flex-wrap space-y-2 md:space-y-0 md:space-x-4">
-            {statusCategories.map((status) => (
-              <button
-                key={status}
-                onClick={() => setStatusFilter(status)}
-                className={`flex-1 px-4 py-2 rounded-lg ${
-                  statusFilter === status
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200 text-gray-800"
-                }`}
-              >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </button>
-            ))}
-          </div>
         </div>
 
-        <div className="flex space-x-4">
+        <div className="flex flex-col lg:flex-row lg:space-x-4">
           {statusCategories.map((status) => (
             <Droppable key={status} droppableId={status}>
               {(provided) => (
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
-                  className="flex-1 bg-gray-100 p-4 rounded-lg shadow-md"
+                  className="bg-gray-100 p-4 rounded-lg shadow-md flex-1 mb-4 lg:mb-0"
                 >
-                  <h3 className="text-xl font-semibold mb-4">
+                  <h3 className="text-lg md:text-xl font-semibold mb-4">
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </h3>
                   {filteredTodos
                     .filter((todo) => todo.status === status)
                     .map((todo, index) => (
-                      <TodoCard key={todo._id} todo={todo} index={index} />
+                      <TodoCard key={todo._id} todo={todo} index={index} refreshTodos={refreshTodos} />
                     ))}
                   {provided.placeholder}
                 </div>

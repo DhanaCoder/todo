@@ -23,14 +23,16 @@ export async function GET(request, { params }) {
 }
 
 // PUT request to update a TODO by ID
-// PUT request to update a TODO by ID
 export async function PUT(req, { params }) {
     await connectToDatabase();
     const { id } = params;
 
     try {
         const body = await req.json();
-        const { status } = body; // Expect status field
+        const { status } = body;
+
+        console.log("Updating TODO with ID:", id);
+        console.log("New Status:", status);
 
         // Update the TODO's status
         const updatedTodo = await Todo.findByIdAndUpdate(id, { status }, { new: true });
@@ -40,6 +42,7 @@ export async function PUT(req, { params }) {
         return NextResponse.json({ message: "Error updating todo", error }, { status: 500 });
     }
 }
+
 
 
 // DELETE request to delete a TODO by ID

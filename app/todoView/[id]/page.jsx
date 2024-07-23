@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation"; // For accessing route params
+import { useRouter, useParams } from "next/navigation"; // For accessing route params
 import { toast } from "react-toastify";
 import Linkify from "react-linkify";
 
@@ -33,7 +32,16 @@ export default function TodoView() {
     fetchTodo();
   }, [id]);
 
-  if (loading) return <p>Loading...</p>; // Display loading state
+  if (loading) return (
+    <div className="flex justify-center items-center h-screen">
+      <div className="loader relative w-12 h-12">
+        <div className="absolute w-3 h-3 bg-gray-800 rounded-full top-0 left-0"></div>
+        <div className="absolute w-3 h-3 bg-gray-800 rounded-full top-0 right-0"></div>
+        <div className="absolute w-3 h-3 bg-gray-800 rounded-full bottom-0 left-0"></div>
+        <div className="absolute w-3 h-3 bg-gray-800 rounded-full bottom-0 right-0"></div>
+      </div>
+    </div>
+  );
 
   if (!todo) return <p>TODO not found.</p>;
 
@@ -57,7 +65,7 @@ export default function TodoView() {
 
   return (
     <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg mt-8 border-4 border-blue-600">
-      <h2 className="text-2xl font-bold mb-4">TODO Details</h2>
+      <h2 className="text-xl md:text-2xl font-bold mb-4">TODO Details</h2>
       <div className="space-y-4">
         <p className="text-gray-600 mb-2">
           <span className="font-semibold">Title:</span> {todo.title}
@@ -102,7 +110,7 @@ export default function TodoView() {
           <span className="font-semibold">Email:</span> {todo.email}
         </p>
       </div>
-      <div className="flex justify-between mt-4">
+      <div className="flex justify-center mt-4">
         <button
           onClick={() => router.push("/dashboard")}
           className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
