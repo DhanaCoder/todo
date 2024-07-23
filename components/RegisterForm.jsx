@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from 'react-toastify'; // Import toast
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS for react-toastify
 
 export default function RegisterForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
   const router = useRouter();
 
@@ -16,7 +17,7 @@ export default function RegisterForm() {
     e.preventDefault();
 
     if (!name || !email || !password) {
-      setError("All fields are necessary.");
+      toast.error("All fields are necessary.");
       return;
     }
 
@@ -32,7 +33,7 @@ export default function RegisterForm() {
       const { user } = await resUserExists.json();
 
       if (user) {
-        setError("User already exists.");
+        toast.error("User already exists.");
         return;
       }
 
@@ -49,20 +50,24 @@ export default function RegisterForm() {
       });
 
       if (res.ok) {
+        toast.success("Registration successful! Redirecting...");
         const form = e.target;
         form.reset();
-        router.push("/");
+        setTimeout(() => {
+          router.push("/");
+        }, 2000); // Redirect after 2 seconds to show the toast
       } else {
-        console.log("User registration failed.");
+        toast.error("User registration failed.");
       }
     } catch (error) {
       console.log("Error during registration: ", error);
+      toast.error("An error occurred during registration.");
     }
   };
 
   return (
-    <div className="grid place-items-center h-screen">
-      <div className="shadow-lg p-5 rounded-lg border-2 border-blue-400">
+    <main className="bg-cover bg-center h-screen flex items-center justify-center" style={{ backgroundImage: 'url("https://wallpapers.com/images/hd/4k-laptop-close-up-keyboard-ltv40n7anazul43s.jpg")' }}>
+      <div className="shadow-lg p-5 rounded-lg border-4 border-blue-600  bg-opacity-50">
         <h1 className="text-xl font-bold my-4">Register</h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -70,32 +75,35 @@ export default function RegisterForm() {
             onChange={(e) => setName(e.target.value)}
             type="text"
             placeholder="Full Name"
+            className="p-2 border border-black rounded-lg bg-transparent focus:bg-transparent placeholder-black"
+            required
           />
           <input
             onChange={(e) => setEmail(e.target.value)}
-            type="text"
+            type="email"
             placeholder="Email"
+            className="p-2 border border-black rounded-lg bg-transparent focus:bg-transparent placeholder-black"
+            required
           />
           <input
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             placeholder="Password"
+            className="p-2 border border-black rounded-lg bg-transparent focus:bg-transparent placeholder-black"
+            required
           />
-          <button className="bg-blue-600 text-white font-bold cursor-pointer px-6 py-2">
+          <button
+            type="submit"
+            className="bg-blue-600 text-white font-bold cursor-pointer px-6 py-2 rounded-lg"
+          >
             Register
           </button>
 
-          {error && (
-            <div className="bg-red-500 text-white w-fit text-sm py-1 px-3 rounded-md mt-2">
-              {error}
-            </div>
-          )}
-
-          <Link className="text-sm mt-3 text-right" href={"/"}>
+          <Link className="text-sm mt-3 text-right" href="/">
             Already have an account? <span className="underline">Login</span>
           </Link>
         </form>
       </div>
-    </div>
+    </main>
   );
 }

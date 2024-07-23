@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter, useParams } from 'next/navigation'; // Import useParams from next/navigation
+import { useRouter, useParams } from 'next/navigation';
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS for react-toastify
 import Link from 'next/link';
 
 export default function TodoEditForm() {
@@ -44,7 +45,7 @@ export default function TodoEditForm() {
         };
 
         fetchTodo();
-    }, [id, session]); // Dependency array includes 'id' and 'session'
+    }, [id, session]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -57,7 +58,7 @@ export default function TodoEditForm() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ formData: updatedTodoData }),
+                body: JSON.stringify(updatedTodoData),
             });
 
             if (response.ok) {
@@ -74,11 +75,22 @@ export default function TodoEditForm() {
         }
     };
 
-    if (loading) return <p>Loading...</p>; // Display loading state
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="loader relative w-12 h-12">
+                    <div className="absolute w-3 h-3 bg-gray-800 rounded-full top-0 left-0"></div>
+                    <div className="absolute w-3 h-3 bg-gray-800 rounded-full top-0 right-0"></div>
+                    <div className="absolute w-3 h-3 bg-gray-800 rounded-full bottom-0 left-0"></div>
+                    <div className="absolute w-3 h-3 bg-gray-800 rounded-full bottom-0 right-0"></div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg mt-8 border-4 border-blue-600">
-            <h2 className="text-2xl font-bold mb-4">Edit TODO</h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-4">Edit TODO</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label htmlFor="title" className="block text-gray-700 font-semibold mb-1">Title:</label>
@@ -131,16 +143,16 @@ export default function TodoEditForm() {
                     />
                 </div>
 
-                <div className="flex justify-between">
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
                     <button
                         type="submit"
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg w-full sm:w-auto"
                     >
                         Update
                     </button>
                     <Link
                         href="/dashboard"
-                        className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
+                        className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg w-full sm:w-auto text-center"
                     >
                         Back
                     </Link>
