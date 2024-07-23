@@ -1,0 +1,128 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation'; // Import useRouter from Next.js
+import { toast } from 'react-toastify';
+import Link from 'next/link';
+
+export default function TodoForm() {
+    const { data: session } = useSession(); // Get session data
+    const router = useRouter(); // Initialize the useRouter hook
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [status, setStatus] = useState('todo');
+    const [email, setEmail] = useState('');
+
+    useEffect(() => {
+        if (session?.user?.email) {
+            setEmail(session.user.email); // Set email from session
+        }
+    }, [session]);
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        const todoData = { title, description, status, email };
+
+        try {
+            const response = await fetch('/api/todos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(todoData),
+            });
+
+            if (response.ok) {
+                toast.success('TODO created successfully!');
+                setTitle('');
+                setDescription('');
+                setStatus('todo');
+                setEmail(session?.user?.email || '');
+                setTimeout(() => {
+                    router.push('/dashboard');
+                }, 1000);
+            } else {
+                toast.error('Error creating TODO');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            toast.error('Error creating TODO');
+        }
+    };
+
+    return (
+        <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg mt-8 border-4 border-blue-600">
+            <h2 className="text-2xl font-bold mb-4 text-center">Create TODO</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <label htmlFor="title" className="block text-gray-700 font-semibold mb-1">Title:</label>
+                    <input
+                        type="text"
+                        id="title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="description" className="block text-gray-700 font-semibold mb-1">Description:</label>
+                    <textarea
+                        id="description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        required
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        rows={4} // Makes the textarea taller
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="status" className="block text-gray-700 font-semibold mb-1">Status:</label>
+                    <select
+                        id="status"
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        required
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="todo">TODO</option>
+                        <option value="in progress">In Progress</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label htmlFor="email" className="block text-gray-700 font-semibold mb-1">Email:</label>
+                    <input
+                        type="email"
+                        id="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        readOnly
+                    />
+                </div>
+
+                <div className="flex flex-col md:flex-row md:justify-between">
+                    <button
+                        type="submit"
+                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg mb-2 md:mb-0"
+                    >
+                        Submit
+                    </button>
+                    <Link
+                        href="/dashboard"
+                        className="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg"
+                    >
+                        Back
+                    </Link>
+                </div>
+            </form>
+        </div>
+    );
+}
