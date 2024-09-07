@@ -24,24 +24,43 @@ export async function GET(request, { params }) {
 
 // PUT request to update a TODO by ID
 export async function PUT(req, { params }) {
-    await connectToDatabase();
-    const { id } = params;
+  try {
+    const body = await req.json();
+    const { title, description, status } = body;
+    const todoId = params.id; // Assuming you are passing the todo ID in the URL parameters
 
-    try {
-        const body = await req.json();
-        const { status } = body;
+    console.log("Updating TODO:", { title, description, status });
 
-        console.log("Updating TODO with ID:", id);
-        console.log("New Status:", status);
-
-        // Update the TODO's status
-        const updatedTodo = await Todo.findByIdAndUpdate(id, { status }, { new: true });
-        return NextResponse.json({ message: "Todo updated", updatedTodo }, { status: 200 });
-    } catch (error) {
-        console.error("Error updating todo:", error);
-        return NextResponse.json({ message: "Error updating todo", error }, { status: 500 });
+    if (!title && !description && !status) {
+      return NextResponse.json(
+        { message: "No fields to update" },
+        { status: 400 }
+      );
     }
+
+    const updatedTodo = await Todo.findByIdAndUpdate(
+      todoId,
+      { title, description, status },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedTodo) {
+      return NextResponse.json({ message: "Todo not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      { message: "Todo Updated", todo: updatedTodo },
+      { status: 200 }
+    );
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { message: "Error updating todo", err },
+      { status: 500 }
+    );
+  }
 }
+
 
 
 
@@ -58,3 +77,5 @@ export async function DELETE(req, { params }) {
         return NextResponse.json({ message: "Error deleting todo", error }, { status: 500 });
     }
 }
+
+

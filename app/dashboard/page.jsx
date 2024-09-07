@@ -50,45 +50,48 @@ export default function Dashboard() {
   }, [todos, searchQuery]);
 
   const handleDragEnd = async (result) => {
-    if (!result.destination) return;
+  if (!result.destination) return;
 
-    const { source, destination } = result;
-    const movedTodo = todos.find(todo => todo._id === result.draggableId);
-    const updatedStatus = destination.droppableId;
+  const { source, destination } = result;
+  const movedTodo = todos.find(todo => todo._id === result.draggableId);
 
-    if (!movedTodo) {
-      console.error("Todo not found for the given draggableId.");
-      return;
-    }
+  if (!movedTodo) {
+    console.error("Todo not found for the given draggableId.");
+    return;
+  }
 
-    const updatedTodo = { ...movedTodo, status: updatedStatus };
+  const updatedStatus = destination.droppableId; // This should match the status
 
-    // Update local state
-    const updatedTodos = todos.map(todo =>
-      todo._id === movedTodo._id ? updatedTodo : todo
-    );
-    setTodos(updatedTodos);
+  // Create an updatedTodo object with the new status
+  const updatedTodo = { ...movedTodo, status: updatedStatus };
 
-    // Update backend
-    try {
-      const response = await fetch(`/api/todos/${movedTodo._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: updatedStatus }),
-      });
+  // Update local state
+  const updatedTodos = todos.map(todo =>
+    todo._id === movedTodo._id ? updatedTodo : todo
+  );
+  setTodos(updatedTodos);
 
-      if (response.ok) {
-        toast.success('TODO updated successfully!');
-      } else {
-        toast.error('Error updating TODO');
-      }
-    } catch (error) {
-      console.error('Error:', error);
+  // Update backend
+  try {
+    const response = await fetch(`/api/todos/${movedTodo._id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: updatedStatus }),
+    });
+
+    if (response.ok) {
+      toast.success('TODO updated successfully!');
+    } else {
       toast.error('Error updating TODO');
     }
-  };
+  } catch (error) {
+    console.error('Error:', error);
+    toast.error('Error updating TODO');
+  }
+};
+
 
   const refreshTodos = async () => {
     if (session?.user?.email) {
@@ -117,47 +120,53 @@ export default function Dashboard() {
 
   const statusCategories = ["todo", "in progress", "done"];
 
-  return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="p-4 md:p-6 lg:p-8">
-        <UserInfo />
-        <h2 className="text-xl md:text-2xl font-bold mb-4">Your TODOs</h2>
-
-        <div className="mb-4">
-          {/* Search */}
-          <input
-            type="text"
-            placeholder="Search by title..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-1/4 p-2 border border-gray-300 rounded-lg"
-          />
-        </div>
-
-        <div className="flex flex-col lg:flex-row lg:space-x-4">
-          {statusCategories.map((status) => (
-            <Droppable key={status} droppableId={status}>
-              {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className="bg-gray-100 p-4 rounded-lg shadow-md flex-1 mb-4 lg:mb-0"
-                >
-                  <h3 className="text-lg md:text-xl font-semibold mb-4">
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </h3>
-                  {filteredTodos
-                    .filter((todo) => todo.status === status)
-                    .map((todo, index) => (
-                      <TodoCard key={todo._id} todo={todo} index={index} refreshTodos={refreshTodos} />
-                    ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          ))}
-        </div>
+return (
+  <DragDropContext onDragEnd={handleDragEnd}>
+    <div className="pt-24 p-2 md:p-6 lg:p-8">
+      {" "}
+      {/* Adjust padding-top to prevent overlap with the fixed navbar */}
+      <UserInfo />
+      <h2 className="text-xl md:text-2xl font-bold mb-4 pt-10">Your TODOs</h2>
+      <div className="mb-2">
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Search by title..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-1/4 p-2 border border-gray-300 rounded-lg"
+        />
       </div>
-    </DragDropContext>
-  );
+      <div className="flex flex-col lg:flex-row lg:space-x-4">
+        {statusCategories.map((status) => (
+          <Droppable key={status} droppableId={status}>
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="bg-gray-100 p-4 rounded-lg shadow-md flex-1 mb-4 lg:mb-0"
+              >
+                <h3 className="text-lg md:text-xl font-semibold mb-4">
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </h3>
+                {filteredTodos
+                  .filter((todo) => todo.status === status)
+                  .map((todo, index) => (
+                    <TodoCard
+                      key={todo._id}
+                      todo={todo}
+                      index={index}
+                      refreshTodos={refreshTodos}
+                    />
+                  ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        ))}
+      </div>
+    </div>
+  </DragDropContext>
+);
+
 }
