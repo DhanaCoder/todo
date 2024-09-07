@@ -27,7 +27,7 @@ export async function PUT(req, { params }) {
   try {
     const body = await req.json();
     const { title, description, status } = body;
-    const todoId = params.id; // Assuming you are passing the todo ID in the URL parameters
+    const todoId = params.id; 
 
     console.log("Updating TODO:", { title, description, status });
 
@@ -41,7 +41,7 @@ export async function PUT(req, { params }) {
     const updatedTodo = await Todo.findByIdAndUpdate(
       todoId,
       { title, description, status },
-      { new: true } // Return the updated document
+      { new: true } 
     );
 
     if (!updatedTodo) {

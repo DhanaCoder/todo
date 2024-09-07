@@ -66,8 +66,14 @@ export default function RegisterForm() {
   };
 
   return (
-    <main className="bg-cover bg-center h-screen flex items-center justify-center" style={{ backgroundImage: 'url("https://wallpapers.com/images/hd/4k-laptop-close-up-keyboard-ltv40n7anazul43s.jpg")' }}>
-      <div className="shadow-lg p-5 rounded-lg border-4 border-blue-600  bg-opacity-50">
+    <main
+      className="bg-cover bg-center h-screen flex items-center justify-center"
+      style={{
+        backgroundImage:
+          'url("https://img.freepik.com/free-photo/desk-concept-frame-with-items_23-2148604882.jpg")',
+      }}
+    >
+      <div className="shadow-lg p-5 rounded-lg border-t-4 border-blue-600  bg-opacity-50">
         <h1 className="text-xl font-bold my-4">Register</h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -75,32 +81,33 @@ export default function RegisterForm() {
             onChange={(e) => setName(e.target.value)}
             type="text"
             placeholder="Full Name"
-            className="p-2 border border-black rounded-lg bg-transparent focus:bg-transparent placeholder-black"
+            className="p-2 border border-gray-300 rounded-lg bg-transparent focus:bg-transparent placeholder-black"
             required
           />
           <input
             onChange={(e) => setEmail(e.target.value)}
             type="email"
             placeholder="Email"
-            className="p-2 border border-black rounded-lg bg-transparent focus:bg-transparent placeholder-black"
+            className="p-2 border border-gray-300 rounded-lg bg-transparent focus:bg-transparent placeholder-black"
             required
           />
           <input
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             placeholder="Password"
-            className="p-2 border border-black rounded-lg bg-transparent focus:bg-transparent placeholder-black"
+            className="p-2 border border-gray-300 rounded-lg bg-transparent focus:bg-transparent placeholder-black"
             required
           />
           <button
             type="submit"
-            className="bg-blue-600 text-white font-bold cursor-pointer px-6 py-2 rounded-lg"
+            className="bg-blue-500 text-white font-bold cursor-pointer px-6 py-2 rounded-lg hover:bg-blue-600"
           >
             Register
           </button>
 
-          <Link className="text-sm mt-3 text-right" href="/">
-            Already have an account? <span className="underline">Login</span>
+          <Link className="text-sm mt-3 text-right text-black" href="/">
+            Already have an account?{" "}
+            <span className="underline hover:text-blue-700">Login</span>
           </Link>
         </form>
       </div>

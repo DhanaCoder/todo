@@ -9,7 +9,13 @@ export default async function Home() {
   if (session) redirect("/dashboard");
 
   return (
-    <main className="bg-cover bg-center h-screen flex items-center justify-center" style={{ backgroundImage: 'url("https://wallpapers.com/images/hd/4k-laptop-close-up-keyboard-ltv40n7anazul43s.jpg")' }}>
+    <main
+      className="bg-cover bg-center h-screen flex items-center justify-center"
+      style={{
+        backgroundImage:
+          'url("https://img.freepik.com/free-photo/desk-concept-frame-with-items_23-2148604882.jpg")',
+      }}
+    >
       <LoginForm />
     </main>
   );

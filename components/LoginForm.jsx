@@ -38,7 +38,7 @@ export default function LoginForm() {
 
   return (
     <div className="grid place-items-center h-screen">
-      <div className="shadow-lg p-5 rounded-lg border-4 border-blue-600  bg-opacity-50">
+      <div className="shadow-lg p-5 rounded-lg border-t-4 border-blue-600  bg-opacity-50">
         <h1 className="text-xl font-bold my-4">Login</h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -46,7 +46,7 @@ export default function LoginForm() {
             onChange={(e) => setEmail(e.target.value)}
             type="text"
             placeholder="Email"
-            className="p-2 border border-black rounded-lg bg-transparent focus:bg-transparent placeholder-black"
+            className="p-2 border border-gray-300 rounded-lg bg-transparent focus:bg-transparent placeholder-black"
             required
           />
           <input
@@ -58,7 +58,7 @@ export default function LoginForm() {
           />
           <button
             type="submit"
-            className="bg-blue-600 text-white font-bold cursor-pointer px-6 py-2 rounded-lg"
+            className="bg-blue-500 text-white font-bold cursor-pointer px-6 py-2 rounded-lg hover:bg-blue-600"
           >
             Login with Credentials
           </button>
@@ -69,8 +69,9 @@ export default function LoginForm() {
           >
             Login with Google
           </button>
-          <Link className="text-sm mt-3 text-right" href="/register">
-            Don't have an account? <span className="underline">Register</span>
+          <Link className="text-sm mt-3 text-right text-black" href="/register">
+            Don't have an account?{" "}
+            <span className="underline hover:text-blue-700">Register</span>
           </Link>
         </form>
       </div>

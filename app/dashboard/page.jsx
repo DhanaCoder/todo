@@ -49,46 +49,56 @@ export default function Dashboard() {
     setFilteredTodos(filtered);
   }, [todos, searchQuery]);
 
-  const handleDragEnd = async (result) => {
-  if (!result.destination) return;
-
+const handleDragEnd = async (result) => {
   const { source, destination } = result;
-  const movedTodo = todos.find(todo => todo._id === result.draggableId);
 
+  // If there's no destination (i.e., drop outside a droppable area), exit early.
+  if (!destination) return;
+
+  // Get the todo item that was dragged based on the draggableId
+  const movedTodo = todos.find((todo) => todo._id === result.draggableId);
+
+  // If no todo was found for the given draggableId, log an error and exit early
   if (!movedTodo) {
     console.error("Todo not found for the given draggableId.");
     return;
   }
 
-  const updatedStatus = destination.droppableId; // This should match the status
+  // Get the new status from the droppableId (which corresponds to the status category)
+  const updatedStatus = destination.droppableId;
 
-  // Create an updatedTodo object with the new status
+  // If the status hasn't changed, no need to update
+  if (movedTodo.status === updatedStatus) return;
+
+  // Create a new todo object with the updated status
   const updatedTodo = { ...movedTodo, status: updatedStatus };
 
-  // Update local state
-  const updatedTodos = todos.map(todo =>
+  // Update the todos state locally by updating the specific todo's status
+  const updatedTodos = todos.map((todo) =>
     todo._id === movedTodo._id ? updatedTodo : todo
   );
   setTodos(updatedTodos);
 
-  // Update backend
+  // Update the status on the backend by calling the API
   try {
     const response = await fetch(`/api/todos/${movedTodo._id}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ status: updatedStatus }),
+      body: JSON.stringify({ status: updatedStatus }), // Only update the status field
     });
 
+    // Check if the update was successful
     if (response.ok) {
-      toast.success('TODO updated successfully!');
+      toast.success("TODO updated successfully!");
     } else {
-      toast.error('Error updating TODO');
+      // If the API responds with an error, notify the user and revert the change
+      toast.error("Error updating TODO");
     }
   } catch (error) {
-    console.error('Error:', error);
-    toast.error('Error updating TODO');
+    console.error("Error:", error);
+    toast.error("Error updating TODO");
   }
 };
 
@@ -122,7 +132,7 @@ export default function Dashboard() {
 
 return (
   <DragDropContext onDragEnd={handleDragEnd}>
-    <div className="pt-24 p-2 md:p-6 lg:p-8">
+    <div className="pt-24 p-2 md:p-8 lg:p-15">
       {" "}
       {/* Adjust padding-top to prevent overlap with the fixed navbar */}
       <UserInfo />
